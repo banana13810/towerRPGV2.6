@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>塔RPG Ver8.1</title>
+<title>塔RPG Ver9</title>
 
 <style>
 body{
@@ -33,8 +34,8 @@ margin:5px 0;
 
 button{
 margin:3px;
-padding:10px;
-font-size:16px;
+padding:8px;
+font-size:14px;
 border-radius:6px;
 }
 
@@ -50,63 +51,56 @@ border-radius:8px;
 .epic{color:#cc66ff}
 .legend{color:gold}
 .mythic{color:red}
+
 </style>
+
 </head>
 
 <body>
 
 <div class="game">
 
-<h2>🏯塔RPG Ver8.1</h2>
+<h2>🏯塔RPG Ver9</h2>
 
 <h3 id="enemy"></h3>
 
-<div class="bar"><div id="enemybar" class="enemybar"></div></div>
+<div class="bar">
+<div id="enemybar" class="enemybar"></div>
+</div>
+
 <div id="enemyHP"></div>
 
 <hr>
 
 <div>階層 <span id="floor"></span></div>
 
-<div class="bar"><div id="hpbar" class="hpbar"></div></div>
+<div class="bar">
+<div id="hpbar" class="hpbar"></div>
+</div>
 
 <div>HP <span id="hp"></span></div>
 <div>MP <span id="mp"></span></div>
+
 <div>Lv <span id="level"></span></div>
 <div>EXP <span id="exp"></span></div>
+
 <div>💰 <span id="gold"></span></div>
 
-<div>状態異常: <span id="status"></span></div>
-
-<button id="attackBtn">⚔攻撃</button>
-<button id="autoBtn">🔴オート戦闘OFF</button>
-<button onclick="next()">⬆次の階</button>
-
-<br>
-
-<label>オート優先スキル
-<select id="prioritySkill">
-<option value="0">🔥ファイア</option>
-<option value="1">💧アイス</option>
-<option value="2">⚡サンダー</option>
-<option value="3">💖ヒール</option>
-<option value="4">🛡バリア</option>
-</select>
-</label>
-
-<div id="skills"></div>
+<button onclick="playerAttack()">⚔攻撃</button> <button onclick="toggleAuto()">🤖オート</button> <button onclick="next()">⬆次の階</button>
 
 <hr>
 
 <h3>🎒装備</h3>
+
+<button onclick="combine()">🔨装備合成</button>
+
 <div id="inventory"></div>
 
 <hr>
 
 <h3>🏪ショップ</h3>
 
-<button onclick="buyPotion()">HPポーション 20G</button>
-<button onclick="gacha()">装備ガチャ 100G</button>
+<button onclick="buyPotion()">HPポーション 20G</button> <button onclick="gacha()">装備ガチャ 100G</button>
 
 <hr>
 
@@ -117,8 +111,6 @@ border-radius:8px;
 </div>
 
 <script>
-
-/* 基本 */
 
 let floor=1
 let level=1
@@ -134,7 +126,7 @@ let playerMaxMP=50
 let attack=5
 let defense=2
 
-let gold=0
+let gold=100
 
 let enemy=""
 let enemyHP=0
@@ -142,7 +134,6 @@ let enemyMax=0
 
 let auto=false
 let nextFloor=false
-let prioritySkill=2
 
 let inventory=[]
 
@@ -150,15 +141,11 @@ let rarity=["common","rare","epic","legend","mythic"]
 
 let logHistory=[]
 
-/* ログ */
-
 function log(t){
 logHistory.unshift(t)
 if(logHistory.length>6)logHistory.pop()
 document.getElementById("log").innerHTML=logHistory.join("<br>")
 }
-
-/* 敵 */
 
 function spawnEnemy(){
 
@@ -176,10 +163,7 @@ enemyHP=enemyMax
 }
 
 document.getElementById("enemy").innerText=enemy
-
 }
-
-/* 攻撃 */
 
 function playerAttack(){
 
@@ -197,6 +181,8 @@ if(enemyHP<=0){
 gold+=10+floor
 exp+=5
 
+dropItem()
+
 nextFloor=true
 
 log("敵撃破")
@@ -208,8 +194,6 @@ enemyAttack()
 update()
 
 }
-
-/* 敵攻撃 */
 
 function enemyAttack(){
 
@@ -227,8 +211,6 @@ location.reload()
 }
 
 }
-
-/* レベルアップ */
 
 function levelUp(){
 
@@ -253,31 +235,23 @@ log("✨Lv"+level)
 
 }
 
-/* スキル */
+function dropItem(){
 
-let skills=[
+if(Math.random()>0.3)return
 
-{name:"🔥ファイア",cost:20,action(){if(playerMP<20)return;playerMP-=20;enemyHP-=attack*3}},
-{name:"💧アイス",cost:15,action(){if(playerMP<15)return;playerMP-=15;enemyHP-=attack*1.5}},
-{name:"⚡サンダー",cost:25,action(){if(playerMP<25)return;playerMP-=25;enemyHP-=attack*2}},
-{name:"💖ヒール",cost:15,action(){if(playerMP<15)return;playerMP-=15;playerHP+=30}},
-{name:"🛡バリア",cost:20,action(){if(playerMP<20)return;playerMP-=20;defense+=5;setTimeout(()=>defense-=5,5000)}}
+let r=rarity[Math.floor(Math.random()*rarity.length)]
 
-]
+let atk=Math.floor(Math.random()*10)+floor
+let def=Math.floor(Math.random()*5)
+let mp=Math.floor(Math.random()*10)
 
-function drawSkills(){
+inventory.push({atk,def,mp,rarity:r,level:1})
 
-let html=""
+log("🎁装備ドロップ")
 
-skills.forEach((s,i)=>{
-html+=`<button onclick="skills[${i}].action();enemyAttack();update();">${s.name}</button>`
-})
-
-document.getElementById("skills").innerHTML=html
+drawInventory()
 
 }
-
-/* ガチャ */
 
 function gacha(){
 
@@ -287,29 +261,122 @@ gold-=100
 
 let r=rarity[Math.floor(Math.random()*rarity.length)]
 
-let atk=Math.floor(Math.random()*10)+5
+let atk=Math.floor(Math.random()*15)
+let def=Math.floor(Math.random()*8)
+let mp=Math.floor(Math.random()*15)
 
-inventory.push({atk,rarity:r})
+inventory.push({atk,def,mp,rarity:r,level:1})
 
 drawInventory()
 
 }
 
-/* 装備 */
-
 function drawInventory(){
 
 let html=""
 
-inventory.forEach(i=>{
-html+=`<div class="item ${i.rarity}">ATK+${i.atk}</div>`
+inventory.forEach((i,index)=>{
+
+html+=`
+<div class="item ${i.rarity}">
+ATK:${i.atk} DEF:${i.def} MP:${i.mp} Lv:${i.level}
+<br>
+<button onclick="equip(${index})">装備</button>
+<button onclick="upgrade(${index})">強化</button>
+</div>
+`
+
 })
 
 document.getElementById("inventory").innerHTML=html
 
 }
 
-/* ショップ */
+function equip(i){
+
+let item=inventory[i]
+
+attack+=item.atk
+defense+=item.def
+playerMaxMP+=item.mp
+
+log("🧥装備")
+
+update()
+
+}
+
+function upgrade(i){
+
+let item=inventory[i]
+
+let cost=item.level*50
+
+if(gold<cost){
+log("💰不足")
+return
+}
+
+gold-=cost
+
+item.level++
+
+item.atk+=2
+item.def+=1
+item.mp+=2
+
+log("⬆強化")
+
+drawInventory()
+update()
+
+}
+
+function combine(){
+
+let groups={}
+
+inventory.forEach((i,index)=>{
+
+if(!groups[i.rarity])groups[i.rarity]=[]
+
+groups[i.rarity].push(index)
+
+})
+
+for(let r in groups){
+
+if(groups[r].length>=3){
+
+let a=groups[r].slice(0,3)
+
+a.reverse().forEach(i=>inventory.splice(i,1))
+
+let nextRarityIndex=rarity.indexOf(r)+1
+
+if(nextRarityIndex>=rarity.length)nextRarityIndex=rarity.length-1
+
+let newRarity=rarity[nextRarityIndex]
+
+inventory.push({
+atk:10,
+def:5,
+mp:5,
+rarity:newRarity,
+level:1
+})
+
+log("🔨合成成功")
+
+break
+
+}
+
+}
+
+drawInventory()
+
+}
 
 function buyPotion(){
 
@@ -321,8 +388,6 @@ playerHP+=50
 if(playerHP>playerMax)playerHP=playerMax
 
 }
-
-/* 次階 */
 
 function next(){
 
@@ -337,7 +402,11 @@ update()
 
 }
 
-/* オート */
+function toggleAuto(){
+
+auto=!auto
+
+}
 
 function autoBattle(){
 
@@ -348,26 +417,11 @@ next()
 return
 }
 
-let skill=skills[prioritySkill]
-
-if(playerMP>=skill.cost){
-
-skill.action()
-enemyAttack()
-
-}else{
-
 playerAttack()
 
 }
 
-update()
-
-}
-
 setInterval(autoBattle,1000)
-
-/* セーブ */
 
 function save(){
 
@@ -380,26 +434,6 @@ localStorage.setItem("towerRPG",JSON.stringify(data))
 log("💾セーブ")
 
 }
-
-/* UI */
-
-document.getElementById("attackBtn").onclick=playerAttack
-
-document.getElementById("autoBtn").onclick=function(){
-
-auto=!auto
-
-this.innerText=auto?"🟢オートON":"🔴オートOFF"
-
-}
-
-document.getElementById("prioritySkill").onchange=function(){
-
-prioritySkill=parseInt(this.value)
-
-}
-
-/* 更新 */
 
 function update(){
 
@@ -418,13 +452,11 @@ document.getElementById("enemybar").style.width=(enemyHP/enemyMax*100)+"%"
 
 }
 
-/* 開始 */
-
 spawnEnemy()
-drawSkills()
 drawInventory()
 update()
 
 </script>
+
 </body>
 </html>
