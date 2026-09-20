@@ -3,445 +3,2362 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>塔RPG V4.1</title>
+<title>塔RPG V4.2</title>
 
 <style>
-body{background:#111;color:white;font-family:sans-serif;margin:0}
-.game{max-width:520px;margin:auto;padding:10px}
-.panel{background:#1b1b1b;padding:10px;margin:8px 0;border-radius:10px}
-.bar{width:100%;height:20px;background:#333;border-radius:10px}
-.hpbar{background:red;height:100%}
-.enemybar{background:lime;height:100%}
-button{background:#333;color:white;border:none;padding:8px;margin:3px;border-radius:6px}
-.big{width:100%;padding:14px;font-size:18px}
-.inventory{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.item{background:#222;padding:6px;border-radius:8px}
-.log{background:#000;height:120px;overflow:auto;font-size:13px;padding:6px}
+*{box-sizing:border-box}
+
+body{
+background:#111;
+color:white;
+font-family:sans-serif;
+margin:0;
+}
+
+.game{
+max-width:520px;
+margin:auto;
+padding:10px;
+}
+
+h2{
+margin-top:5px;
+}
+
+.panel{
+background:#1b1b1b;
+padding:10px;
+margin:8px 0;
+border-radius:10px;
+}
+
+.bar{
+width:100%;
+height:20px;
+background:#333;
+border-radius:10px;
+overflow:hidden;
+margin:5px 0;
+}
+
+.hpbar{
+background:red;
+height:100%;
+transition:.2s;
+}
+
+.enemybar{
+background:lime;
+height:100%;
+transition:.2s;
+}
+
+button{
+background:#333;
+color:white;
+border:none;
+padding:8px;
+margin:3px;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:active{
+transform:scale(.97);
+}
+
+button:disabled{
+opacity:.4;
+}
+
+.big{
+width:100%;
+padding:14px;
+font-size:18px;
+}
+
+select{
+background:#222;
+color:white;
+padding:8px;
+border-radius:6px;
+border:1px solid #555;
+}
+
+.inventory{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:6px;
+}
+
+.item{
+background:#222;
+padding:8px;
+border-radius:8px;
+border:1px solid #444;
+}
+
+.item button{
+font-size:12px;
+}
+
+.common{
+color:white;
+}
+
+.rare{
+color:#66aaff;
+}
+
+.epic{
+color:#cc66ff;
+}
+
+.legend{
+color:#ffd700;
+}
+
+.mythic{
+color:#ff4444;
+}
+
+.log{
+background:#000;
+height:120px;
+overflow:auto;
+font-size:13px;
+padding:6px;
+border-radius:5px;
+}
+
+.status{
+font-size:14px;
+margin-top:4px;
+}
+
+.boss{
+color:#ff5555;
+font-weight:bold;
+}
+
+.backTower{
+color:#cc66ff;
+font-weight:bold;
+}
+
+.enemyName{
+font-size:20px;
+font-weight:bold;
+}
 </style>
 </head>
 
 <body>
+
 <div class="game">
 
-<h2>🏯塔RPG V4.1</h2>
+<h2 id="title">🏯塔RPG V4.2</h2>
 
 <div class="panel">
-<div id="enemy"></div>
-<div class="bar"><div id="enemybar" class="enemybar"></div></div>
+
+<div id="towerName">通常の塔</div>
+
+<div id="enemy" class="enemyName"></div>
+
+<div class="bar">
+<div id="enemybar" class="enemybar"></div>
+</div>
+
 <div id="enemyHP"></div>
+
+<div id="enemyStatus" class="status"></div>
+
 </div>
 
 <div class="panel">
+
+<div>
 階層 <span id="floor"></span>
-<div class="bar"><div id="hpbar" class="hpbar"></div></div>
+</div>
+
+<div class="bar">
+<div id="hpbar" class="hpbar"></div>
+</div>
+
 HP <span id="hp"></span><br>
 MP <span id="mp"></span><br>
 Lv <span id="level"></span><br>
 EXP <span id="exp"></span><br>
 💰 <span id="gold"></span>
+
+<div id="playerStatus" class="status"></div>
+
 </div>
 
 <div class="panel">
-<button class="big" onclick="playerAttack()">⚔攻撃</button>
-<button class="big" onclick="toggleAuto()">🤖オート</button>
 
-優先スキル
+<button class="big" onclick="playerAttack()">⚔攻撃</button>
+
+<button class="big" onclick="toggleAuto()" id="autoButton">
+🤖オート OFF
+</button>
+
+<div>
+優先スキル　
 <select id="prioritySkill">
-<option value="0">🔥</option>
-<option value="1">❄</option>
-<option value="2">⚡</option>
-<option value="3">💖</option>
-<option value="4">🩸</option>
-<option value="5">✨</option>
+<option value="0">🔥 ファイア</option>
+<option value="1">❄ フリーズ</option>
+<option value="2">⚡ サンダー</option>
+<option value="3">💖 ヒール</option>
+<option value="4">🩸 吸血攻撃</option>
+<option value="5">✨ 大回復</option>
 </select>
+</div>
 
 <div id="skills"></div>
+
 </div>
 
 <div class="panel">
+
 <h3>🎒装備</h3>
+
 <button onclick="sortATK()">ATK</button>
 <button onclick="sortDEF()">DEF</button>
 <button onclick="sortMP()">MP</button>
+<button onclick="sortRarity()">レア度</button>
+
 <button onclick="combine()">🔨合成</button>
+
 <div id="inventory" class="inventory"></div>
+
 </div>
 
 <div class="panel">
+
 <h3>🏪ショップ</h3>
-<button onclick="buyPotion()">HPポーション 20G</button>
-<button onclick="gacha()">装備ガチャ 100G</button>
+
+<button onclick="buyPotion()">
+HPポーション 20G
+</button>
+
+<button onclick="gacha()">
+装備ガチャ 100G
+</button>
+
 </div>
 
-<button class="big" onclick="save()">💾セーブ</button>
+<div class="panel">
+
+<button class="big" onclick="save()">
+💾セーブ
+</button>
+
+<button class="big" onclick="load()">
+📂ロード
+</button>
+
+</div>
+
+<div class="panel" id="backTowerPanel" style="display:none">
+
+<h3>🌌裏の塔</h3>
+
+<p>
+200階の最終ボスを倒したことで解放されました！
+</p>
+
+<button class="big" onclick="enterBackTower()">
+🌌裏の塔へ
+</button>
+
+</div>
 
 <div class="panel">
+
 <h3>⚔戦闘ログ</h3>
+
 <div id="log" class="log"></div>
+
 </div>
 
 </div>
 
 <script>
 
-// ===== 基本 =====
-let floor=1, level=1, exp=0, expMax=10
-let playerMax=100, playerHP=100
-let playerMaxMP=50, playerMP=50
-let attack=5, defense=2
-let gold=100
-let enemy="", enemyHP=0, enemyMax=0
-let auto=false
-let inventory=[]
-let equipped={sword:null,armor:null,ring:null}
-let logHistory=[]
-let battleEnd=false
+/* =========================
+基本データ
+========================= */
 
-let critRate=0.05
-let critDamage=2
+let floor=1;
+let level=1;
+let exp=0;
+let expMax=10;
 
-// ===== ログ =====
+let playerMax=100;
+let playerHP=100;
+
+let playerMaxMP=50;
+let playerMP=50;
+
+let attack=5;
+let defense=2;
+
+let gold=100;
+
+let enemy="";
+let enemyHP=0;
+let enemyMax=0;
+
+let auto=false;
+
+let inventory=[];
+
+let equipped={
+sword:null,
+armor:null,
+ring:null
+};
+
+let logHistory=[];
+
+let battleEnd=false;
+
+let critRate=0.05;
+let critDamage=2;
+
+let playerFreeze=0;
+let playerParalyze=0;
+
+let enemyFreeze=0;
+let enemyParalyze=0;
+
+let isBackTower=false;
+let backTowerUnlocked=false;
+
+let battleToken=0;
+
+
+/* =========================
+レアリティ
+========================= */
+
+const rarities=[
+{
+name:"common",
+label:"通常",
+mult:1,
+color:"common"
+},
+{
+name:"rare",
+label:"レア",
+mult:1.4,
+color:"rare"
+},
+{
+name:"epic",
+label:"エピック",
+mult:2,
+color:"epic"
+},
+{
+name:"legend",
+label:"レジェンド",
+mult:3,
+color:"legend"
+},
+{
+name:"mythic",
+label:"ミシック",
+mult:5,
+color:"mythic"
+}
+];
+
+
+/* =========================
+ログ
+========================= */
+
 function log(t){
-logHistory.unshift(t)
-if(logHistory.length>8)logHistory.pop()
-document.getElementById("log").innerHTML=logHistory.join("<br>")
+
+logHistory.unshift(t);
+
+if(logHistory.length>8){
+logHistory.pop();
 }
 
-// ===== ダメージ =====
+document.getElementById("log").innerHTML=
+logHistory.join("<br>");
+
+}
+
+
+/* =========================
+ダメージ
+========================= */
+
 function calcDamage(base){
-let isCrit=Math.random()<critRate
-let dmg=base
-if(isCrit){dmg*=critDamage;log("💥クリティカル！")}
-return Math.floor(dmg)
+
+let isCrit=Math.random()<critRate;
+
+let dmg=base;
+
+if(isCrit){
+
+dmg*=critDamage;
+
+log("💥クリティカル！");
+
 }
 
-// ===== 敵 =====
+return Math.max(1,Math.floor(dmg));
+
+}
+
+
+/* =========================
+敵生成
+========================= */
+
 function spawnEnemy(){
-let list=["スライム","ゴブリン","オオカミ","骸骨"]
-enemy=list[Math.floor(Math.random()*list.length)]
-enemyMax=20+floor*6
-if(floor%10==0){enemy="🐉ボス";enemyMax=250+floor*12}
-enemyHP=enemyMax
-document.getElementById("enemy").innerText=enemy
+
+battleEnd=false;
+
+battleToken++;
+
+enemyFreeze=0;
+enemyParalyze=0;
+
+let scale=isBackTower ? 2.5 : 1;
+
+let list=[
+"スライム",
+"ゴブリン",
+"オオカミ",
+"骸骨",
+"魔法使い",
+"ダークナイト"
+];
+
+enemy=
+list[Math.floor(Math.random()*list.length)];
+
+enemyMax=
+Math.floor((20+floor*6)*scale);
+
+
+/* 50階ボス */
+
+if(floor%50===0){
+
+enemy="🐉階層ボス";
+
+enemyMax=
+Math.floor((250+floor*15)*scale);
+
 }
 
-// ===== 戦闘 =====
-function playerAttack(){
-if(battleEnd)return
-let dmg=calcDamage(attack)
-enemyHP-=dmg
-log("⚔ "+dmg)
-playerMP=Math.min(playerMP+5,playerMaxMP)
-battleCheck()
+
+/* 200階最終ボス */
+
+if(!isBackTower && floor===200){
+
+enemy="👑塔の最終ボス";
+
+enemyMax=10000;
+
 }
+
+
+/* 裏の塔ボス */
+
+if(isBackTower && floor%50===0){
+
+enemy="🌌裏の階層ボス";
+
+enemyMax=
+Math.floor((600+floor*30)*scale);
+
+}
+
+enemyHP=enemyMax;
+
+document.getElementById("enemy").innerText=enemy;
+
+update();
+
+}
+
+
+/* =========================
+プレイヤー攻撃
+========================= */
+
+function playerAttack(){
+
+if(battleEnd)return;
+
+if(playerParalyze>0){
+
+log("⚡麻痺して動けない！");
+
+playerParalyze--;
+
+enemyAttack();
+
+return;
+
+}
+
+let dmg=calcDamage(attack);
+
+enemyHP-=dmg;
+
+log("⚔ "+dmg+" ダメージ");
+
+playerMP=
+Math.min(
+playerMP+5,
+playerMaxMP
+);
+
+battleCheck();
+
+}
+
+
+/* =========================
+敵攻撃
+========================= */
 
 function enemyAttack(){
-if(enemyHP<=0 || battleEnd)return
 
-let dmg=Math.max(1,5+floor-defense)
+if(enemyHP<=0 || battleEnd)return;
 
-// 200階AI
-if(floor>=200 && !enemy.includes("ボス")){
-let r=Math.random()
-if(r<0.25){dmg*=1.8;log("👾強攻撃 "+Math.floor(dmg))}
-else if(r<0.4){
-let heal=Math.floor(enemyMax*0.08)
-enemyHP=Math.min(enemyHP+heal,enemyMax)
-log("👾回復 "+heal)
-update()
-return
-}
+if(enemyFreeze>0){
+
+log("❄敵は凍っている！");
+
+enemyFreeze--;
+
+return;
+
 }
 
-// ボスAI
+if(enemyParalyze>0){
+
+log("⚡敵は麻痺している！");
+
+enemyParalyze--;
+
+return;
+
+}
+
+let dmg=
+Math.max(
+1,
+5+
+floor-
+defense
+);
+
+
+/* 200階以降の強化AI */
+
+if(floor>=200){
+
+let r=Math.random();
+
+if(r<0.12){
+
+dmg*=1.8;
+
+log("👾強攻撃！");
+
+}
+
+}
+
+
+/* ボスAI */
+
 if(enemy.includes("ボス")){
-let r=Math.random()
-if(r<0.3){dmg*=2;log("🐉強攻撃 "+dmg)}
-else if(r<0.45){
-let heal=Math.floor(enemyMax*0.1)
-enemyHP=Math.min(enemyHP+heal,enemyMax)
-log("🐉回復 "+heal)
-update()
-return
-}
+
+let r=Math.random();
+
+
+/* 強攻撃 */
+
+if(r<0.22){
+
+dmg*=2;
+
+log("🐉ボスの強攻撃！");
+
 }
 
-playerHP-=Math.floor(dmg)
-log("👾 "+Math.floor(dmg))
+
+/* 回復 */
+
+else if(r<0.38){
+
+let heal=
+Math.floor(enemyMax*0.1);
+
+enemyHP=
+Math.min(
+enemyHP+heal,
+enemyMax
+);
+
+log("🐉ボス回復 "+heal);
+
+update();
+
+return;
+
+}
+
+
+/* 防御 */
+
+else if(r<0.50){
+
+log("🛡ボスが防御した！");
+
+dmg*=0.5;
+
+}
+
+
+/* 凍結 */
+
+else if(r<0.60){
+
+if(Math.random()<0.5){
+
+playerFreeze=1;
+
+log("❄凍結した！");
+
+}
+
+}
+
+
+/* 麻痺 */
+
+else if(r<0.70){
+
+if(Math.random()<0.5){
+
+playerParalyze=1;
+
+log("⚡麻痺した！");
+
+}
+
+}
+
+}
+
+
+/* 最終ボスは強化 */
+
+if(enemy.includes("最終ボス")){
+
+dmg*=1.5;
+
+}
+
+
+dmg=Math.floor(dmg);
+
+playerHP-=dmg;
+
+log("👾敵の攻撃 "+dmg);
 
 if(playerHP<=0){
-let choice=confirm("ゲームオーバー\nOK=セーブ地点\nキャンセル=最初から")
-if(choice)load()
-else location.reload()
+
+playerHP=0;
+
+update();
+
+gameOver();
+
+return;
+
 }
 
-update()
+update();
+
 }
+
+
+/* =========================
+戦闘判定
+========================= */
 
 function battleCheck(){
-if(battleEnd)return
+
+if(battleEnd)return;
 
 if(enemyHP<=0){
-battleEnd=true
-enemyHP=0
 
-gold+=10+floor
-exp+=5
-dropItem()
+battleEnd=true;
+
+enemyHP=0;
+
+gold+=10+floor;
+
+exp+=5;
+
+dropItem();
+
 
 if(enemy.includes("ボス")){
-gold+=150
-inventory.push(createItem())
-log("🎁ボス報酬")
+
+gold+=150;
+
+inventory.push(
+createItem(true)
+);
+
+log("🎁ボス報酬！");
 }
 
-setTimeout(()=>{next()},300)
-return
+
+/* 最終ボス */
+
+if(enemy.includes("最終ボス")){
+
+backTowerUnlocked=true;
+
+log("🌌裏の塔が解放された！");
+
+document.getElementById(
+"backTowerPanel"
+).style.display="block";
+
 }
 
-enemyAttack()
-update()
+
+/* レベルアップ */
+
+levelUp();
+
+update();
+
+
+let token=battleToken;
+
+setTimeout(()=>{
+
+if(token!==battleToken)return;
+
+nextFloor();
+
+},400);
+
+return;
+
 }
 
-// ===== スキル =====
+enemyAttack();
+
+update();
+
+}
+
+
+/* =========================
+スキル
+========================= */
+
 let skills=[
-{name:"🔥",cost:20,action(){if(playerMP<20)return;playerMP-=20;let dmg=calcDamage(attack*3);enemyHP-=dmg;log("🔥 "+dmg);battleCheck()}},
-{name:"❄",cost:15,action(){if(playerMP<15)return;playerMP-=15;let dmg=calcDamage(attack*2);enemyHP-=dmg;log("❄ "+dmg);battleCheck()}},
-{name:"⚡",cost:25,action(){if(playerMP<25)return;playerMP-=25;let dmg=calcDamage(attack*2.5);enemyHP-=dmg;log("⚡ "+dmg);battleCheck()}},
-{name:"💖",cost:15,action(){if(playerMP<15)return;playerMP-=15;playerHP=Math.min(playerHP+40,playerMax);log("💖回復");update();enemyAttack()}},
-{name:"🩸",cost:20,action(){if(playerMP<20)return;playerMP-=20;let dmg=calcDamage(attack*2);enemyHP-=dmg;let heal=Math.floor(dmg/2);playerHP=Math.min(playerHP+heal,playerMax);log("🩸"+dmg+"/"+heal);battleCheck()}},
-{name:"✨",cost:20,action(){if(playerMP<20)return;playerMP-=20;let heal=Math.floor(playerMax*0.25);playerHP=Math.min(playerHP+heal,playerMax);log("✨"+heal);update();enemyAttack()}}
-]
+
+{
+name:"🔥",
+cost:20,
+
+action(){
+
+if(battleEnd)return;
+
+if(playerMP<20){
+
+log("MP不足");
+
+return;
+
+}
+
+playerMP-=20;
+
+let dmg=
+calcDamage(attack*3);
+
+enemyHP-=dmg;
+
+log("🔥 "+dmg);
+
+battleCheck();
+
+}
+},
+
+{
+name:"❄",
+cost:15,
+
+action(){
+
+if(battleEnd)return;
+
+if(playerMP<15){
+
+log("MP不足");
+
+return;
+
+}
+
+playerMP-=15;
+
+let dmg=
+calcDamage(attack*2);
+
+enemyHP-=dmg;
+
+if(Math.random()<0.5){
+
+enemyFreeze=2;
+
+log("❄凍結！");
+
+}
+
+log("❄ "+dmg);
+
+battleCheck();
+
+}
+},
+
+{
+name:"⚡",
+cost:25,
+
+action(){
+
+if(battleEnd)return;
+
+if(playerMP<25){
+
+log("MP不足");
+
+return;
+
+}
+
+playerMP-=25;
+
+let dmg=
+calcDamage(attack*2.5);
+
+enemyHP-=dmg;
+
+if(Math.random()<0.5){
+
+enemyParalyze=2;
+
+log("⚡麻痺！");
+
+}
+
+log("⚡ "+dmg);
+
+battleCheck();
+
+}
+},
+
+{
+name:"💖",
+cost:15,
+
+action(){
+
+if(battleEnd)return;
+
+if(playerMP<15){
+
+log("MP不足");
+
+return;
+
+}
+
+playerMP-=15;
+
+let heal=40;
+
+playerHP=
+Math.min(
+playerHP+heal,
+playerMax
+);
+
+log("💖 "+heal+"回復");
+
+update();
+
+enemyAttack();
+
+}
+},
+
+{
+name:"🩸",
+cost:20,
+
+action(){
+
+if(battleEnd)return;
+
+if(playerMP<20){
+
+log("MP不足");
+
+return;
+
+}
+
+playerMP-=20;
+
+let dmg=
+calcDamage(attack*2);
+
+enemyHP-=dmg;
+
+let heal=
+Math.floor(dmg/2);
+
+playerHP=
+Math.min(
+playerHP+heal,
+playerMax
+);
+
+log(
+"🩸 "+dmg+
+" / 回復 "+heal
+);
+
+battleCheck();
+
+}
+},
+
+{
+name:"✨",
+cost:20,
+
+action(){
+
+if(battleEnd)return;
+
+if(playerMP<20){
+
+log("MP不足");
+
+return;
+
+}
+
+playerMP-=20;
+
+let heal=
+Math.floor(playerMax*0.25);
+
+playerHP=
+Math.min(
+playerHP+heal,
+playerMax
+);
+
+log("✨ "+heal+"回復");
+
+update();
+
+enemyAttack();
+
+}
+}
+
+];
+
+
+/* =========================
+スキル表示
+========================= */
 
 function drawSkills(){
+
 document.getElementById("skills").innerHTML=
-skills.map((s,i)=>`<button onclick="skills[${i}].action()">${s.name}</button>`).join("")
+
+skills.map((s,i)=>{
+
+return `
+<button onclick="skills[${i}].action()">
+${s.name} ${s.cost}MP
+</button>
+`;
+
+}).join("");
+
 }
 
-// ===== オート =====
+
+/* =========================
+オート
+========================= */
+
 function autoBattle(){
-if(!auto)return
 
-let enemyDamage=Math.max(1,5+floor-defense)
+if(!auto)return;
 
-if(playerHP/playerMax<0.4 && playerMP>=15 && playerHP<playerMax-20){
-skills[3].action()
-return
-}
+if(battleEnd)return;
+
+
+/* 危険なら停止 */
+
+let enemyDamage=
+Math.max(
+1,
+5+floor-defense
+);
 
 if(playerHP-enemyDamage*2<=0){
-auto=false
-log("⚠オート停止")
-return
+
+auto=false;
+
+log("⚠オート停止");
+
+updateAutoButton();
+
+return;
+
 }
 
-let p=Number(document.getElementById("prioritySkill").value)
-if(playerMP>=skills[p].cost)skills[p].action()
-else playerAttack()
+
+/* HPが危険ならヒール */
+
+if(
+playerHP/playerMax<0.4 &&
+playerMP>=15
+){
+
+skills[3].action();
+
+return;
+
 }
-setInterval(autoBattle,900)
-function toggleAuto(){auto=!auto}
 
-// ===== 装備 =====
-function createItem(){
-let types=["sword","armor","ring"]
-let type=types[Math.floor(Math.random()*3)]
 
-let boost=1+Math.random()*2
+/* 優先スキル */
+
+let p=
+Number(
+document.getElementById(
+"prioritySkill"
+).value
+);
+
+
+/* 回復スキル以外 */
+
+if(
+playerMP>=skills[p].cost
+){
+
+skills[p].action();
+
+}
+
+else{
+
+playerAttack();
+
+}
+
+}
+
+setInterval(autoBattle,900);
+
+
+function toggleAuto(){
+
+auto=!auto;
+
+updateAutoButton();
+
+}
+
+
+function updateAutoButton(){
+
+document.getElementById(
+"autoButton"
+).innerText=
+auto
+?"🤖オート ON"
+:"🤖オート OFF";
+
+}
+
+
+/* =========================
+装備作成
+========================= */
+
+function createItem(boss=false){
+
+let types=[
+"sword",
+"armor",
+"ring"
+];
+
+let type=
+types[
+Math.floor(
+Math.random()*types.length
+)
+];
+
+let rarityIndex=
+Math.floor(
+Math.random()*5
+);
+
+if(boss){
+
+rarityIndex=
+Math.max(
+2,
+Math.floor(Math.random()*5)
+);
+
+}
+
+let rarity=
+rarities[rarityIndex];
+
+let mult=
+rarity.mult;
+
+let boost=
+1+
+Math.random()*2;
 
 return{
-type,
-atk:Math.floor((Math.random()*20+floor)*boost),
-def:Math.floor(Math.random()*15*boost),
-mp:Math.floor(Math.random()*20*boost),
-crit:Math.random()*0.05,
+
+id:
+Date.now()+
+Math.random(),
+
+type:type,
+
+rarity:rarityIndex,
+
+atk:
+Math.floor(
+(Math.random()*20+
+floor*
+0.5)
+*
+boost*
+mult
+),
+
+def:
+Math.floor(
+Math.random()*15*
+boost*
+mult
+),
+
+mp:
+Math.floor(
+Math.random()*20*
+boost*
+mult
+),
+
+crit:
+Math.random()*0.05*
+mult,
+
 plus:0
+
+};
+
 }
+
+
+/* =========================
+装備名
+========================= */
+
+function getItemName(item){
+
+let icon=
+item.type==="sword"
+?"⚔"
+:
+item.type==="armor"
+?"🛡"
+:"💍";
+
+let typeName=
+item.type==="sword"
+?"剣"
+:
+item.type==="armor"
+?"鎧"
+:"指輪";
+
+let rarity=
+rarities[item.rarity];
+
+return `
+${icon}${rarity.label}${typeName}
+`;
+
 }
+
+
+/* =========================
+インベントリ
+========================= */
 
 function drawInventory(){
-document.getElementById("inventory").innerHTML=
-inventory.map((i,index)=>{
-let icon=i.type=="sword"?"⚔":i.type=="armor"?"🛡":"💍"
+
+document.getElementById(
+"inventory"
+).innerHTML=
+
+inventory.map(
+(item,index)=>{
+
+let equippedText=
+equipped[item.type]===item
+?"<b>【装備中】</b>"
+:"";
+
 return `
-<div class="item">
-${icon} +${i.plus}<br>
-ATK:${i.atk}<br>
-DEF:${i.def}<br>
-MP:${i.mp}<br>
-CRIT:${(i.crit*100).toFixed(1)}%<br>
-<button onclick="equip(${index})">装備</button>
-<button onclick="upgrade(${index})">強化</button>
-<button onclick="sell(${index})">売却</button>
-</div>`
-}).join("")
+
+<div class="item ${rarities[item.rarity].color}">
+
+${getItemName(item)}
++${item.plus}
+
+${equippedText}
+
+<br>
+
+ATK:${item.atk}
+<br>
+
+DEF:${item.def}
+<br>
+
+MP:${item.mp}
+<br>
+
+CRIT:
+${(item.crit*100).toFixed(1)}%
+
+<br>
+
+<button onclick="equip(${index})">
+装備
+</button>
+
+<button onclick="upgrade(${index})">
+強化
+</button>
+
+<button onclick="sell(${index})">
+売却
+</button>
+
+</div>
+
+`;
+
 }
+).join("");
+
+}
+
+
+/* =========================
+装備
+========================= */
 
 function equip(i){
-let item=inventory[i]
-if(!item || equipped[item.type]===item)return
 
-if(equipped[item.type]){
-attack-=equipped[item.type].atk
-defense-=equipped[item.type].def
-playerMaxMP-=equipped[item.type].mp
-critRate-=equipped[item.type].crit
+let item=inventory[i];
+
+if(!item)return;
+
+let old=equipped[item.type];
+
+
+/* 同じ装備なら何もしない */
+
+if(old===item){
+
+log("すでに装備中");
+
+return;
+
 }
 
-equipped[item.type]=item
 
-attack+=item.atk
-defense+=item.def
-playerMaxMP+=item.mp
-critRate+=item.crit
+/* 古い装備を外す */
 
-playerMP=Math.min(playerMP,playerMaxMP)
+if(old){
 
-log("🆙装備変更")
-update()
+attack-=old.atk;
+
+defense-=old.def;
+
+playerMaxMP-=old.mp;
+
+critRate-=old.crit;
+
 }
+
+
+/* 新しい装備 */
+
+equipped[item.type]=item;
+
+attack+=item.atk;
+
+defense+=item.def;
+
+playerMaxMP+=item.mp;
+
+critRate+=item.crit;
+
+playerMP=
+Math.min(
+playerMP,
+playerMaxMP
+);
+
+log("🆙"+getItemName(item));
+
+drawInventory();
+
+update();
+
+}
+
+
+/* =========================
+強化
+========================= */
 
 function upgrade(i){
-let item=inventory[i]
-if(!item)return
 
-let cost=20*(item.plus+1)
-if(gold<cost){log("💸金不足");return}
+let item=inventory[i];
 
-gold-=cost
+if(!item)return;
 
-item.plus++
-item.atk=Math.floor(item.atk*1.1)
-item.def=Math.floor(item.def*1.1)
-item.mp=Math.floor(item.mp*1.1)
-item.crit+=0.002
+let cost=
+Math.floor(
+20*
+Math.pow(
+2,
+item.plus
+)
+);
 
-if(equipped[item.type]===item){
-equip(i)
+if(gold<cost){
+
+log("💸金不足");
+
+return;
+
 }
 
-log("🔧強化 +"+item.plus)
 
-drawInventory()
-update()
+/* 装備中なら一度能力を外す */
+
+let wasEquipped=
+equipped[item.type]===item;
+
+if(wasEquipped){
+
+attack-=item.atk;
+
+defense-=item.def;
+
+playerMaxMP-=item.mp;
+
+critRate-=item.crit;
+
 }
+
+
+/* 強化 */
+
+gold-=cost;
+
+item.plus++;
+
+item.atk=
+Math.floor(
+item.atk*1.1
+);
+
+item.def=
+Math.floor(
+item.def*1.1
+);
+
+item.mp=
+Math.floor(
+item.mp*1.1
+);
+
+item.crit+=0.002;
+
+
+/* 再装備 */
+
+if(wasEquipped){
+
+attack+=item.atk;
+
+defense+=item.def;
+
+playerMaxMP+=item.mp;
+
+critRate+=item.crit;
+
+playerMP=
+Math.min(
+playerMP,
+playerMaxMP
+);
+
+}
+
+log(
+"🔧強化 +"+
+item.plus+
+" / "+cost+"G"
+);
+
+drawInventory();
+
+update();
+
+}
+
+
+/* =========================
+売却
+========================= */
 
 function sell(i){
-let item=inventory[i]
-if(equipped[item.type]===item){log("⚠装備中は売れない");return}
 
-gold+=20
-inventory.splice(i,1)
+let item=inventory[i];
 
-drawInventory()
-update()
+if(!item)return;
+
+if(equipped[item.type]===item){
+
+log("⚠装備中は売れません");
+
+return;
+
 }
+
+let value=
+20+
+item.rarity*30+
+item.plus*10;
+
+gold+=value;
+
+inventory.splice(i,1);
+
+log("💰売却 +"+value+"G");
+
+drawInventory();
+
+update();
+
+}
+
+
+/* =========================
+合成
+========================= */
 
 function combine(){
-if(inventory.length<3)return
-inventory.sort((a,b)=>(a.atk+a.def+a.mp)-(b.atk+b.def+b.mp))
-inventory.splice(0,3)
-inventory.push(createItem())
-drawInventory()
+
+/*
+同じ種類・同じレアリティ・同じ+レベル
+3個必要
+*/
+
+let found=null;
+
+for(let i=0;i<inventory.length;i++){
+
+let a=inventory[i];
+
+if(a.plus<10)continue;
+
+let same=
+inventory.filter(
+x=>
+x.type===a.type &&
+x.rarity===a.rarity &&
+x.plus===a.plus
+);
+
+if(same.length>=3){
+
+found={
+item:a,
+items:same.slice(0,3)
+};
+
+break;
+
 }
 
-// ===== その他 =====
-function sortATK(){inventory.sort((a,b)=>b.atk-a.atk);drawInventory()}
-function sortDEF(){inventory.sort((a,b)=>b.def-a.def);drawInventory()}
-function sortMP(){inventory.sort((a,b)=>b.mp-a.mp);drawInventory()}
+}
+
+if(!found){
+
+log(
+"🔨同じ装備3個が必要"
+);
+
+return;
+
+}
+
+let items=found.items;
+
+if(found.item.rarity>=4){
+
+log("最高レアです");
+
+return;
+
+}
+
+
+/* 装備中が含まれている場合は不可 */
+
+if(
+items.some(
+x=>equipped[x.type]===x
+)
+){
+
+log("⚠装備中の物は合成できません");
+
+return;
+
+}
+
+
+/* 3個削除 */
+
+items.forEach(item=>{
+
+let index=
+inventory.indexOf(item);
+
+if(index>=0){
+
+inventory.splice(index,1);
+
+}
+
+});
+
+
+/* 新装備 */
+
+let newItem=
+JSON.parse(
+JSON.stringify(
+found.item
+)
+);
+
+newItem.id=
+Date.now()+
+Math.random();
+
+newItem.rarity++;
+
+newItem.atk=
+Math.floor(
+newItem.atk*1.5
+);
+
+newItem.def=
+Math.floor(
+newItem.def*1.5
+);
+
+newItem.mp=
+Math.floor(
+newItem.mp*1.5
+);
+
+newItem.crit*=1.2;
+
+inventory.push(newItem);
+
+log(
+"🔨合成成功！ "+
+rarities[newItem.rarity].label
+);
+
+drawInventory();
+
+}
+
+
+/* =========================
+ソート
+========================= */
+
+function sortATK(){
+
+inventory.sort(
+(a,b)=>b.atk-a.atk
+);
+
+drawInventory();
+
+}
+
+function sortDEF(){
+
+inventory.sort(
+(a,b)=>b.def-a.def
+);
+
+drawInventory();
+
+}
+
+function sortMP(){
+
+inventory.sort(
+(a,b)=>b.mp-a.mp
+);
+
+drawInventory();
+
+}
+
+function sortRarity(){
+
+inventory.sort(
+(a,b)=>b.rarity-a.rarity
+);
+
+drawInventory();
+
+}
+
+
+/* =========================
+ドロップ
+========================= */
+
+function dropItem(){
+
+let chance=
+isBackTower
+?0.35
+:0.25;
+
+if(Math.random()<chance){
+
+inventory.push(
+createItem(false)
+);
+
+log("🎁装備ドロップ！");
+
+drawInventory();
+
+}
+
+}
+
+
+/* =========================
+ショップ
+========================= */
 
 function buyPotion(){
-if(gold<20)return
-gold-=20
-playerHP=Math.min(playerHP+50,playerMax)
-update()
+
+if(gold<20){
+
+log("💸金不足");
+
+return;
+
 }
+
+gold-=20;
+
+playerHP=
+Math.min(
+playerHP+50,
+playerMax
+);
+
+log("🧪HP回復");
+
+update();
+
+}
+
 
 function gacha(){
-if(gold<100)return
-gold-=100
-inventory.push(createItem())
-drawInventory()
+
+if(gold<100){
+
+log("💸金不足");
+
+return;
+
 }
 
-function next(){
-floor++
-spawnEnemy()
-battleEnd=false
-update()
+gold-=100;
+
+let item=
+createItem(false);
+
+inventory.push(item);
+
+log(
+"🎰ガチャ "+
+rarities[item.rarity].label
+);
+
+drawInventory();
+
+update();
+
 }
+
+
+/* =========================
+次の階
+========================= */
+
+function nextFloor(){
+
+floor++;
+
+battleEnd=false;
+
+spawnEnemy();
+
+update();
+
+}
+
+
+/* =========================
+レベルアップ
+========================= */
 
 function levelUp(){
+
+let leveled=false;
+
 while(exp>=expMax){
-exp-=expMax
-level++
-expMax=Math.floor(expMax*1.4)
 
-playerMax+=20
-attack+=2
-defense+=1
-playerMaxMP+=10
+exp-=expMax;
 
-playerHP=playerMax
-playerMP=playerMaxMP
+level++;
+
+expMax=
+Math.floor(
+expMax*1.4
+);
+
+
+/* 基本成長 */
+
+playerMax+=20;
+
+attack+=2;
+
+defense+=1;
+
+playerMaxMP+=10;
+
+playerHP=playerMax;
+
+playerMP=playerMaxMP;
+
+leveled=true;
+
+log(
+"🎉Lv"+level+
+"になった！"
+);
+
+
+/* 5レベルごと */
+
+if(level%5===0){
+
+let bonus=
+createItem(false);
+
+bonus.rarity=
+Math.min(
+4,
+bonus.rarity+1
+);
+
+bonus.atk=
+Math.floor(
+bonus.atk*1.5
+);
+
+bonus.def=
+Math.floor(
+bonus.def*1.5
+);
+
+bonus.mp=
+Math.floor(
+bonus.mp*1.5
+);
+
+inventory.push(bonus);
+
+attack+=5;
+
+playerMax+=30;
+
+playerHP=playerMax;
+
+log(
+"🌟5Lvボーナス装備！"
+);
+
 }
+
 }
 
-// ===== セーブ =====
+if(leveled){
+
+drawInventory();
+
+}
+
+}
+
+
+/* =========================
+ゲームオーバー
+========================= */
+
+function gameOver(){
+
+auto=false;
+
+updateAutoButton();
+
+let choice=
+confirm(
+"ゲームオーバー\n\n"+
+"OK：セーブデータをロード\n"+
+"キャンセル：最初から"
+);
+
+if(choice){
+
+let data=
+localStorage.getItem(
+"towerRPG"
+);
+
+if(data){
+
+load();
+
+}else{
+
+location.reload();
+
+}
+
+}else{
+
+localStorage.removeItem(
+"towerRPG"
+);
+
+location.reload();
+
+}
+
+}
+
+
+/* =========================
+裏の塔
+========================= */
+
+function enterBackTower(){
+
+if(!backTowerUnlocked){
+
+log("まだ解放されていません");
+
+return;
+
+}
+
+isBackTower=true;
+
+floor=1;
+
+battleEnd=false;
+
+log("🌌裏の塔へ進んだ！");
+
+spawnEnemy();
+
+update();
+
+}
+
+
+function leaveBackTower(){
+
+if(!isBackTower)return;
+
+isBackTower=false;
+
+floor=200;
+
+spawnEnemy();
+
+update();
+
+}
+
+
+/* =========================
+セーブ
+========================= */
+
 function save(){
-localStorage.setItem("towerRPG",JSON.stringify({
-floor,level,exp,playerHP,playerMP,attack,defense,gold,inventory,equipped,critRate
-}))
-log("💾セーブ")
+
+let data={
+
+floor,
+level,
+exp,
+expMax,
+
+playerMax,
+playerHP,
+
+playerMaxMP,
+playerMP,
+
+attack,
+defense,
+
+gold,
+
+inventory,
+
+equipped,
+
+critRate,
+
+isBackTower,
+backTowerUnlocked
+
+};
+
+localStorage.setItem(
+"towerRPG",
+JSON.stringify(data)
+);
+
+log("💾セーブ完了");
+
 }
+
+
+/* =========================
+ロード
+========================= */
 
 function load(){
-let data=localStorage.getItem("towerRPG")
-if(!data)return
-let d=JSON.parse(data)
 
-floor=d.floor
-level=d.level
-exp=d.exp
-playerHP=d.playerHP
-playerMP=d.playerMP
-attack=d.attack
-defense=d.defense
-gold=d.gold
-inventory=d.inventory
-equipped=d.equipped||{sword:null,armor:null,ring:null}
-critRate=d.critRate||0.05
+let data=
+localStorage.getItem(
+"towerRPG"
+);
 
-spawnEnemy()
-drawInventory()
-update()
+if(!data){
+
+log("セーブデータなし");
+
+return;
+
 }
 
-// ===== 更新 =====
+try{
+
+let d=JSON.parse(data);
+
+floor=d.floor||1;
+
+level=d.level||1;
+
+exp=d.exp||0;
+
+expMax=d.expMax||10;
+
+playerMax=d.playerMax||100;
+
+playerHP=d.playerHP||playerMax;
+
+playerMaxMP=d.playerMaxMP||50;
+
+playerMP=d.playerMP||playerMaxMP;
+
+gold=d.gold||100;
+
+inventory=d.inventory||[];
+
+isBackTower=
+d.isBackTower||false;
+
+backTowerUnlocked=
+d.backTowerUnlocked||false;
+
+
+/*
+装備能力を一度リセットして
+保存された装備から再計算
+*/
+
+attack=5+((level-1)*2);
+
+defense=2+((level-1)*1);
+
+critRate=0.05;
+
+equipped={
+sword:null,
+armor:null,
+ring:null
+};
+
+
+/* 保存インベントリ */
+
+let savedInventory=
+inventory;
+
+
+/*
+旧セーブ互換
+*/
+
+inventory=
+savedInventory.map(item=>({
+
+id:item.id||
+Date.now()+Math.random(),
+
+type:item.type||"sword",
+
+rarity:item.rarity||0,
+
+atk:item.atk||0,
+
+def:item.def||0,
+
+mp:item.mp||0,
+
+crit:item.crit||0,
+
+plus:item.plus||0
+
+}));
+
+
+/* 保存された装備をIDで復元 */
+
+if(d.equipped){
+
+for(let type of [
+"sword",
+"armor",
+"ring"
+]){
+
+let saved=d.equipped[type];
+
+if(!saved)continue;
+
+let item=
+inventory.find(
+x=>x.id===saved.id
+);
+
+if(item){
+
+equipped[type]=item;
+
+attack+=item.atk;
+
+defense+=item.def;
+
+playerMaxMP+=item.mp;
+
+critRate+=item.crit;
+
+}
+
+}
+
+}
+
+
+/* MP補正 */
+
+playerMP=
+Math.min(
+playerMP,
+playerMaxMP
+);
+
+
+if(backTowerUnlocked){
+
+document.getElementById(
+"backTowerPanel"
+).style.display="block";
+
+}
+
+spawnEnemy();
+
+drawInventory();
+
+update();
+
+log("📂ロード完了");
+
+}catch(e){
+
+console.log(e);
+
+log("⚠ロード失敗");
+
+}
+
+}
+
+
+/* =========================
+更新
+========================= */
+
 function update(){
-levelUp()
 
-enemyHP=Math.max(0,enemyHP)
-playerHP=Math.max(0,playerHP)
+levelUp();
 
-document.getElementById("floor").innerText=floor
-document.getElementById("hp").innerText=playerHP+"/"+playerMax
-document.getElementById("mp").innerText=playerMP+"/"+playerMaxMP
-document.getElementById("level").innerText=level
-document.getElementById("exp").innerText=exp+"/"+expMax
-document.getElementById("gold").innerText=gold
-document.getElementById("enemyHP").innerText=enemyHP+"/"+enemyMax
+enemyHP=
+Math.max(
+0,
+enemyHP
+);
 
-document.getElementById("hpbar").style.width=(playerHP/playerMax*100)+"%"
-document.getElementById("enemybar").style.width=(enemyHP/enemyMax*100)+"%"
+playerHP=
+Math.max(
+0,
+playerHP
+);
+
+playerMP=
+Math.max(
+0,
+Math.min(
+playerMP,
+playerMaxMP
+)
+);
+
+
+document.getElementById(
+"floor"
+).innerText=
+floor;
+
+document.getElementById(
+"hp"
+).innerText=
+playerHP+"/"+playerMax;
+
+document.getElementById(
+"mp"
+).innerText=
+playerMP+"/"+playerMaxMP;
+
+document.getElementById(
+"level"
+).innerText=
+level;
+
+document.getElementById(
+"exp"
+).innerText=
+exp+"/"+expMax;
+
+document.getElementById(
+"gold"
+).innerText=
+gold;
+
+document.getElementById(
+"enemyHP"
+).innerText=
+enemyHP+"/"+enemyMax;
+
+
+/* HPバー */
+
+let hpPercent=
+playerMax>0
+?playerHP/playerMax*100
+:0;
+
+document.getElementById(
+"hpbar"
+).style.width=
+hpPercent+"%";
+
+
+/* 敵HP */
+
+let enemyPercent=
+enemyMax>0
+?enemyHP/enemyMax*100
+:0;
+
+document.getElementById(
+"enemybar"
+).style.width=
+enemyPercent+"%";
+
+
+/* 塔名 */
+
+document.getElementById(
+"towerName"
+).innerHTML=
+isBackTower
+?"🌌 <span class='backTower'>裏の塔</span>"
+:"🏯 通常の塔";
+
+
+/* 状態異常 */
+
+let ps=[];
+
+if(playerFreeze>0)
+ps.push("❄凍結");
+
+if(playerParalyze>0)
+ps.push("⚡麻痺");
+
+document.getElementById(
+"playerStatus"
+).innerText=
+ps.join(" ");
+
+
+let es=[];
+
+if(enemyFreeze>0)
+es.push("❄凍結");
+
+if(enemyParalyze>0)
+es.push("⚡麻痺");
+
+document.getElementById(
+"enemyStatus"
+).innerText=
+es.join(" ");
+
+
+/* 裏の塔 */
+
+if(backTowerUnlocked){
+
+document.getElementById(
+"backTowerPanel"
+).style.display=
+"block";
+
 }
 
-// ===== 初期化 =====
-spawnEnemy()
-drawSkills()
-drawInventory()
-update()
+}
+
+
+/* =========================
+初期化
+========================= */
+
+drawSkills();
+
+drawInventory();
+
+spawnEnemy();
+
+update();
 
 </script>
+
 </body>
 </html>
