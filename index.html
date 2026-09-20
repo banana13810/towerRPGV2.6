@@ -1,9 +1,10 @@
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>塔RPG V4.2</title>
+<title>塔RPG V4.3</title>
 
 <style>
 *{box-sizing:border-box}
@@ -21,9 +22,7 @@ margin:auto;
 padding:10px;
 }
 
-h2{
-margin-top:5px;
-}
+h2{margin-top:5px}
 
 .panel{
 background:#1b1b1b;
@@ -67,22 +66,27 @@ button:active{
 transform:scale(.97);
 }
 
-button:disabled{
-opacity:.4;
-}
-
 .big{
 width:100%;
 padding:14px;
 font-size:18px;
 }
 
-select{
+button:disabled{
+opacity:.4;
+}
+
+select,
+input{
 background:#222;
 color:white;
-padding:8px;
-border-radius:6px;
 border:1px solid #555;
+border-radius:5px;
+padding:6px;
+}
+
+input[type="number"]{
+width:70px;
 }
 
 .inventory{
@@ -102,25 +106,11 @@ border:1px solid #444;
 font-size:12px;
 }
 
-.common{
-color:white;
-}
-
-.rare{
-color:#66aaff;
-}
-
-.epic{
-color:#cc66ff;
-}
-
-.legend{
-color:#ffd700;
-}
-
-.mythic{
-color:#ff4444;
-}
+.common{color:white}
+.rare{color:#66aaff}
+.epic{color:#cc66ff}
+.legend{color:#ffd700}
+.mythic{color:#ff4444}
 
 .log{
 background:#000;
@@ -136,8 +126,8 @@ font-size:14px;
 margin-top:4px;
 }
 
-.boss{
-color:#ff5555;
+.enemyName{
+font-size:20px;
 font-weight:bold;
 }
 
@@ -146,9 +136,21 @@ color:#cc66ff;
 font-weight:bold;
 }
 
-.enemyName{
-font-size:20px;
-font-weight:bold;
+.setting{
+background:#222;
+padding:8px;
+margin:5px 0;
+border-radius:6px;
+}
+
+.setting label{
+display:block;
+margin:5px 0;
+}
+
+.small{
+font-size:12px;
+color:#aaa;
 }
 </style>
 </head>
@@ -157,11 +159,11 @@ font-weight:bold;
 
 <div class="game">
 
-<h2 id="title">🏯塔RPG V4.2</h2>
+<h2>🏯塔RPG V4.3</h2>
 
 <div class="panel">
 
-<div id="towerName">通常の塔</div>
+<div id="towerName">🏯 通常の塔</div>
 
 <div id="enemy" class="enemyName"></div>
 
@@ -177,9 +179,7 @@ font-weight:bold;
 
 <div class="panel">
 
-<div>
 階層 <span id="floor"></span>
-</div>
 
 <div class="bar">
 <div id="hpbar" class="hpbar"></div>
@@ -197,7 +197,9 @@ EXP <span id="exp"></span><br>
 
 <div class="panel">
 
-<button class="big" onclick="playerAttack()">⚔攻撃</button>
+<button class="big" onclick="playerAttack()">
+⚔攻撃
+</button>
 
 <button class="big" onclick="toggleAuto()" id="autoButton">
 🤖オート OFF
@@ -219,6 +221,9 @@ EXP <span id="exp"></span><br>
 
 </div>
 
+
+<!-- 装備 -->
+
 <div class="panel">
 
 <h3>🎒装備</h3>
@@ -227,52 +232,205 @@ EXP <span id="exp"></span><br>
 <button onclick="sortDEF()">DEF</button>
 <button onclick="sortMP()">MP</button>
 <button onclick="sortRarity()">レア度</button>
-
 <button onclick="combine()">🔨合成</button>
 
 <div id="inventory" class="inventory"></div>
 
 </div>
 
+
+<!-- 自動売却 -->
+
+<div class="panel">
+
+<h3>🤖自動売却設定</h3>
+
+<div class="setting">
+
+<label>
+<input type="checkbox" id="autoSellEnabled">
+🤖 自動売却を有効にする
+</label>
+
+</div>
+
+<div class="setting">
+
+<label>
+🎒 インベントリが
+<input
+type="number"
+id="autoSellLimit"
+value="30"
+min="5"
+max="200"
+>
+個以上になったら実行
+</label>
+
+</div>
+
+<div class="setting">
+
+<label>
+⭐ 売却対象レア度
+<select id="autoSellRarity">
+<option value="0">通常のみ</option>
+<option value="1">レア以下</option>
+<option value="2">エピック以下</option>
+<option value="3">レジェンド以下</option>
+<option value="4">ミシック以下</option>
+</select>
+</label>
+
+<div class="small">
+※設定したレア度以下の装備が売却対象になります。
+</div>
+
+</div>
+
+<div class="setting">
+
+<label>
+⚔ ATK
+<input
+type="number"
+id="autoSellATK"
+value="20"
+min="0"
+>
+以下なら対象
+</label>
+
+<label>
+🛡 DEF
+<input
+type="number"
+id="autoSellDEF"
+value="15"
+min="0"
+>
+以下なら対象
+</label>
+
+<label>
+💧 MP
+<input
+type="number"
+id="autoSellMP"
+value="10"
+min="0"
+>
+以下なら対象
+</label>
+
+</div>
+
+<div class="setting">
+
+<label>
+🔧 強化値
+<input
+type="number"
+id="autoSellPlus"
+value="9"
+min="0"
+>
+以下なら対象
+</label>
+
+</div>
+
+<div class="setting">
+
+<label>
+<input
+type="checkbox"
+id="autoSellRequireAll"
+checked
+>
+条件を「すべて満たした装備」だけ売る
+</label>
+
+</div>
+
+<button class="big" onclick="autoSellNow()">
+💰今すぐ自動売却
+</button>
+
+</div>
+
+
+<!-- ショップ -->
+
 <div class="panel">
 
 <h3>🏪ショップ</h3>
 
 <button onclick="buyPotion()">
-HPポーション 20G
+🧪HPポーション 20G
 </button>
 
 <button onclick="gacha()">
-装備ガチャ 100G
+🎰装備ガチャ 100G
 </button>
 
 </div>
 
+
+<!-- 裏の塔 -->
+
+<div
+class="panel"
+id="backTowerPanel"
+style="display:none"
+>
+
+<h3>🌌裏の塔</h3>
+
+<p>
+200階の最終ボス撃破で解放。
+</p>
+
+<button
+class="big"
+onclick="enterBackTower()"
+>
+🌌裏の塔へ
+</button>
+
+<button
+class="big"
+onclick="leaveBackTower()"
+>
+🏯通常の塔へ
+</button>
+
+</div>
+
+
+<!-- セーブ -->
+
 <div class="panel">
 
-<button class="big" onclick="save()">
+<button
+class="big"
+onclick="save()"
+>
 💾セーブ
 </button>
 
-<button class="big" onclick="load()">
+<button
+class="big"
+onclick="load()"
+>
 📂ロード
 </button>
 
 </div>
 
-<div class="panel" id="backTowerPanel" style="display:none">
 
-<h3>🌌裏の塔</h3>
-
-<p>
-200階の最終ボスを倒したことで解放されました！
-</p>
-
-<button class="big" onclick="enterBackTower()">
-🌌裏の塔へ
-</button>
-
-</div>
+<!-- ログ -->
 
 <div class="panel">
 
@@ -284,10 +442,11 @@ HPポーション 20G
 
 </div>
 
+
 <script>
 
 /* =========================
-基本データ
+基本
 ========================= */
 
 let floor=1;
@@ -340,40 +499,62 @@ let battleToken=0;
 
 
 /* =========================
+自動売却設定
+========================= */
+
+let autoSellEnabled=false;
+let autoSellLimit=30;
+let autoSellRarity=0;
+
+let autoSellATK=20;
+let autoSellDEF=15;
+let autoSellMP=10;
+let autoSellPlus=9;
+
+let autoSellRequireAll=true;
+
+
+/* =========================
 レアリティ
 ========================= */
 
 const rarities=[
+
 {
 name:"common",
 label:"通常",
 mult:1,
 color:"common"
 },
+
 {
 name:"rare",
 label:"レア",
 mult:1.4,
 color:"rare"
 },
+
 {
 name:"epic",
 label:"エピック",
 mult:2,
 color:"epic"
 },
+
 {
 name:"legend",
 label:"レジェンド",
 mult:3,
 color:"legend"
 },
+
 {
 name:"mythic",
 label:"ミシック",
 mult:5,
 color:"mythic"
 }
+
 ];
 
 
@@ -389,7 +570,9 @@ if(logHistory.length>8){
 logHistory.pop();
 }
 
-document.getElementById("log").innerHTML=
+document.getElementById(
+"log"
+).innerHTML=
 logHistory.join("<br>");
 
 }
@@ -401,7 +584,8 @@ logHistory.join("<br>");
 
 function calcDamage(base){
 
-let isCrit=Math.random()<critRate;
+let isCrit=
+Math.random()<critRate;
 
 let dmg=base;
 
@@ -413,7 +597,10 @@ log("💥クリティカル！");
 
 }
 
-return Math.max(1,Math.floor(dmg));
+return Math.max(
+1,
+Math.floor(dmg)
+);
 
 }
 
@@ -431,7 +618,10 @@ battleToken++;
 enemyFreeze=0;
 enemyParalyze=0;
 
-let scale=isBackTower ? 2.5 : 1;
+let scale=
+isBackTower
+?2.5
+:1;
 
 let list=[
 "スライム",
@@ -443,10 +633,16 @@ let list=[
 ];
 
 enemy=
-list[Math.floor(Math.random()*list.length)];
+list[
+Math.floor(
+Math.random()*list.length
+)
+];
 
 enemyMax=
-Math.floor((20+floor*6)*scale);
+Math.floor(
+(20+floor*6)*scale
+);
 
 
 /* 50階ボス */
@@ -456,14 +652,19 @@ if(floor%50===0){
 enemy="🐉階層ボス";
 
 enemyMax=
-Math.floor((250+floor*15)*scale);
+Math.floor(
+(250+floor*15)*scale
+);
 
 }
 
 
 /* 200階最終ボス */
 
-if(!isBackTower && floor===200){
+if(
+!isBackTower &&
+floor===200
+){
 
 enemy="👑塔の最終ボス";
 
@@ -474,18 +675,25 @@ enemyMax=10000;
 
 /* 裏の塔ボス */
 
-if(isBackTower && floor%50===0){
+if(
+isBackTower &&
+floor%50===0
+){
 
 enemy="🌌裏の階層ボス";
 
 enemyMax=
-Math.floor((600+floor*30)*scale);
+Math.floor(
+(600+floor*30)*scale
+);
 
 }
 
 enemyHP=enemyMax;
 
-document.getElementById("enemy").innerText=enemy;
+document.getElementById(
+"enemy"
+).innerText=enemy;
 
 update();
 
@@ -493,7 +701,7 @@ update();
 
 
 /* =========================
-プレイヤー攻撃
+攻撃
 ========================= */
 
 function playerAttack(){
@@ -512,11 +720,15 @@ return;
 
 }
 
-let dmg=calcDamage(attack);
+let dmg=
+calcDamage(attack);
 
 enemyHP-=dmg;
 
-log("⚔ "+dmg+" ダメージ");
+log(
+"⚔ "+dmg+
+" ダメージ"
+);
 
 playerMP=
 Math.min(
@@ -535,7 +747,10 @@ battleCheck();
 
 function enemyAttack(){
 
-if(enemyHP<=0 || battleEnd)return;
+if(
+enemyHP<=0 ||
+battleEnd
+)return;
 
 if(enemyFreeze>0){
 
@@ -566,7 +781,7 @@ defense
 );
 
 
-/* 200階以降の強化AI */
+/* 200階以降 */
 
 if(floor>=200){
 
@@ -590,8 +805,6 @@ if(enemy.includes("ボス")){
 let r=Math.random();
 
 
-/* 強攻撃 */
-
 if(r<0.22){
 
 dmg*=2;
@@ -600,13 +813,12 @@ log("🐉ボスの強攻撃！");
 
 }
 
-
-/* 回復 */
-
 else if(r<0.38){
 
 let heal=
-Math.floor(enemyMax*0.1);
+Math.floor(
+enemyMax*0.1
+);
 
 enemyHP=
 Math.min(
@@ -614,7 +826,10 @@ enemyHP+heal,
 enemyMax
 );
 
-log("🐉ボス回復 "+heal);
+log(
+"🐉ボス回復 "+
+heal
+);
 
 update();
 
@@ -622,19 +837,13 @@ return;
 
 }
 
-
-/* 防御 */
-
 else if(r<0.50){
 
-log("🛡ボスが防御した！");
+log("🛡ボス防御！");
 
 dmg*=0.5;
 
 }
-
-
-/* 凍結 */
 
 else if(r<0.60){
 
@@ -647,9 +856,6 @@ log("❄凍結した！");
 }
 
 }
-
-
-/* 麻痺 */
 
 else if(r<0.70){
 
@@ -666,8 +872,6 @@ log("⚡麻痺した！");
 }
 
 
-/* 最終ボスは強化 */
-
 if(enemy.includes("最終ボス")){
 
 dmg*=1.5;
@@ -679,7 +883,10 @@ dmg=Math.floor(dmg);
 
 playerHP-=dmg;
 
-log("👾敵の攻撃 "+dmg);
+log(
+"👾敵の攻撃 "+
+dmg
+);
 
 if(playerHP<=0){
 
@@ -728,16 +935,23 @@ createItem(true)
 );
 
 log("🎁ボス報酬！");
+
+autoSell();
+
 }
 
 
 /* 最終ボス */
 
-if(enemy.includes("最終ボス")){
+if(
+enemy.includes("最終ボス")
+){
 
 backTowerUnlocked=true;
 
-log("🌌裏の塔が解放された！");
+log(
+"🌌裏の塔が解放された！"
+);
 
 document.getElementById(
 "backTowerPanel"
@@ -745,13 +959,11 @@ document.getElementById(
 
 }
 
-
-/* レベルアップ */
-
 levelUp();
 
-update();
+autoSell();
 
+update();
 
 let token=battleToken;
 
@@ -799,11 +1011,15 @@ return;
 playerMP-=20;
 
 let dmg=
-calcDamage(attack*3);
+calcDamage(
+attack*3
+);
 
 enemyHP-=dmg;
 
-log("🔥 "+dmg);
+log(
+"🔥 "+dmg
+);
 
 battleCheck();
 
@@ -829,7 +1045,9 @@ return;
 playerMP-=15;
 
 let dmg=
-calcDamage(attack*2);
+calcDamage(
+attack*2
+);
 
 enemyHP-=dmg;
 
@@ -841,7 +1059,9 @@ log("❄凍結！");
 
 }
 
-log("❄ "+dmg);
+log(
+"❄ "+dmg
+);
 
 battleCheck();
 
@@ -867,7 +1087,9 @@ return;
 playerMP-=25;
 
 let dmg=
-calcDamage(attack*2.5);
+calcDamage(
+attack*2.5
+);
 
 enemyHP-=dmg;
 
@@ -879,7 +1101,9 @@ log("⚡麻痺！");
 
 }
 
-log("⚡ "+dmg);
+log(
+"⚡ "+dmg
+);
 
 battleCheck();
 
@@ -912,7 +1136,10 @@ playerHP+heal,
 playerMax
 );
 
-log("💖 "+heal+"回復");
+log(
+"💖 "+heal+
+"回復"
+);
 
 update();
 
@@ -940,12 +1167,16 @@ return;
 playerMP-=20;
 
 let dmg=
-calcDamage(attack*2);
+calcDamage(
+attack*2
+);
 
 enemyHP-=dmg;
 
 let heal=
-Math.floor(dmg/2);
+Math.floor(
+dmg/2
+);
 
 playerHP=
 Math.min(
@@ -955,7 +1186,8 @@ playerMax
 
 log(
 "🩸 "+dmg+
-" / 回復 "+heal
+" / 回復 "+
+heal
 );
 
 battleCheck();
@@ -982,7 +1214,9 @@ return;
 playerMP-=20;
 
 let heal=
-Math.floor(playerMax*0.25);
+Math.floor(
+playerMax*0.25
+);
 
 playerHP=
 Math.min(
@@ -990,7 +1224,10 @@ playerHP+heal,
 playerMax
 );
 
-log("✨ "+heal+"回復");
+log(
+"✨ "+heal+
+"回復"
+);
 
 update();
 
@@ -1008,17 +1245,21 @@ enemyAttack();
 
 function drawSkills(){
 
-document.getElementById("skills").innerHTML=
+document.getElementById(
+"skills"
+).innerHTML=
 
-skills.map((s,i)=>{
+skills.map(
+(s,i)=>`
 
-return `
-<button onclick="skills[${i}].action()">
+<button
+onclick="skills[${i}].action()"
+>
 ${s.name} ${s.cost}MP
 </button>
-`;
 
-}).join("");
+`
+).join("");
 
 }
 
@@ -1033,20 +1274,27 @@ if(!auto)return;
 
 if(battleEnd)return;
 
-
-/* 危険なら停止 */
-
 let enemyDamage=
 Math.max(
 1,
-5+floor-defense
+5+
+floor-
+defense
 );
 
-if(playerHP-enemyDamage*2<=0){
+
+/* 危険なら停止 */
+
+if(
+playerHP-
+enemyDamage*2<=0
+){
 
 auto=false;
 
-log("⚠オート停止");
+log(
+"⚠オート停止"
+);
 
 updateAutoButton();
 
@@ -1055,7 +1303,7 @@ return;
 }
 
 
-/* HPが危険ならヒール */
+/* 回復 */
 
 if(
 playerHP/playerMax<0.4 &&
@@ -1078,18 +1326,13 @@ document.getElementById(
 ).value
 );
 
-
-/* 回復スキル以外 */
-
 if(
 playerMP>=skills[p].cost
 ){
 
 skills[p].action();
 
-}
-
-else{
+}else{
 
 playerAttack();
 
@@ -1097,7 +1340,10 @@ playerAttack();
 
 }
 
-setInterval(autoBattle,900);
+setInterval(
+autoBattle,
+900
+);
 
 
 function toggleAuto(){
@@ -1136,7 +1382,7 @@ let types=[
 let type=
 types[
 Math.floor(
-Math.random()*types.length
+Math.random()*3
 )
 ];
 
@@ -1150,16 +1396,15 @@ if(boss){
 rarityIndex=
 Math.max(
 2,
-Math.floor(Math.random()*5)
+Math.floor(
+Math.random()*5
+)
 );
 
 }
 
 let rarity=
 rarities[rarityIndex];
-
-let mult=
-rarity.mult;
 
 let boost=
 1+
@@ -1171,37 +1416,37 @@ id:
 Date.now()+
 Math.random(),
 
-type:type,
+type,
 
 rarity:rarityIndex,
 
 atk:
 Math.floor(
 (Math.random()*20+
-floor*
-0.5)
+floor*0.5)
 *
 boost*
-mult
+rarity.mult
 ),
 
 def:
 Math.floor(
 Math.random()*15*
 boost*
-mult
+rarity.mult
 ),
 
 mp:
 Math.floor(
 Math.random()*20*
 boost*
-mult
+rarity.mult
 ),
 
 crit:
-Math.random()*0.05*
-mult,
+Math.random()*
+0.05*
+rarity.mult,
 
 plus:0
 
@@ -1232,11 +1477,8 @@ item.type==="armor"
 ?"鎧"
 :"指輪";
 
-let rarity=
-rarities[item.rarity];
-
 return `
-${icon}${rarity.label}${typeName}
+${icon}${rarities[item.rarity].label}${typeName}
 `;
 
 }
@@ -1253,32 +1495,26 @@ document.getElementById(
 ).innerHTML=
 
 inventory.map(
-(item,index)=>{
-
-let equippedText=
-equipped[item.type]===item
-?"<b>【装備中】</b>"
-:"";
-
-return `
+(item,index)=>`
 
 <div class="item ${rarities[item.rarity].color}">
 
 ${getItemName(item)}
 +${item.plus}
 
-${equippedText}
+${
+equipped[item.type]===item
+?"<b>【装備中】</b>"
+:""
+}
 
 <br>
 
-ATK:${item.atk}
-<br>
+ATK:${item.atk}<br>
 
-DEF:${item.def}
-<br>
+DEF:${item.def}<br>
 
-MP:${item.mp}
-<br>
+MP:${item.mp}<br>
 
 CRIT:
 ${(item.crit*100).toFixed(1)}%
@@ -1299,9 +1535,7 @@ ${(item.crit*100).toFixed(1)}%
 
 </div>
 
-`;
-
-}
+`
 ).join("");
 
 }
@@ -1317,21 +1551,18 @@ let item=inventory[i];
 
 if(!item)return;
 
-let old=equipped[item.type];
-
-
-/* 同じ装備なら何もしない */
+let old=
+equipped[item.type];
 
 if(old===item){
 
-log("すでに装備中");
+log(
+"すでに装備中"
+);
 
 return;
 
 }
-
-
-/* 古い装備を外す */
 
 if(old){
 
@@ -1344,9 +1575,6 @@ playerMaxMP-=old.mp;
 critRate-=old.crit;
 
 }
-
-
-/* 新しい装備 */
 
 equipped[item.type]=item;
 
@@ -1364,7 +1592,10 @@ playerMP,
 playerMaxMP
 );
 
-log("🆙"+getItemName(item));
+log(
+"🆙"+
+getItemName(item)
+);
 
 drawInventory();
 
@@ -1400,9 +1631,6 @@ return;
 
 }
 
-
-/* 装備中なら一度能力を外す */
-
 let wasEquipped=
 equipped[item.type]===item;
 
@@ -1417,9 +1645,6 @@ playerMaxMP-=item.mp;
 critRate-=item.crit;
 
 }
-
-
-/* 強化 */
 
 gold-=cost;
 
@@ -1442,9 +1667,6 @@ item.mp*1.1
 
 item.crit+=0.002;
 
-
-/* 再装備 */
-
 if(wasEquipped){
 
 attack+=item.atk;
@@ -1466,7 +1688,9 @@ playerMaxMP
 log(
 "🔧強化 +"+
 item.plus+
-" / "+cost+"G"
+" / "+
+cost+
+"G"
 );
 
 drawInventory();
@@ -1486,9 +1710,13 @@ let item=inventory[i];
 
 if(!item)return;
 
-if(equipped[item.type]===item){
+if(
+equipped[item.type]===item
+){
 
-log("⚠装備中は売れません");
+log(
+"⚠装備中は売れません"
+);
 
 return;
 
@@ -1503,7 +1731,276 @@ gold+=value;
 
 inventory.splice(i,1);
 
-log("💰売却 +"+value+"G");
+log(
+"💰売却 +"+
+value+
+"G"
+);
+
+drawInventory();
+
+update();
+
+}
+
+
+/* =========================
+自動売却
+========================= */
+
+function readAutoSellSettings(){
+
+autoSellEnabled=
+document.getElementById(
+"autoSellEnabled"
+).checked;
+
+autoSellLimit=
+Number(
+document.getElementById(
+"autoSellLimit"
+).value
+)||30;
+
+autoSellRarity=
+Number(
+document.getElementById(
+"autoSellRarity"
+).value
+)||0;
+
+autoSellATK=
+Number(
+document.getElementById(
+"autoSellATK"
+).value
+)||0;
+
+autoSellDEF=
+Number(
+document.getElementById(
+"autoSellDEF"
+).value
+)||0;
+
+autoSellMP=
+Number(
+document.getElementById(
+"autoSellMP"
+).value
+)||0;
+
+autoSellPlus=
+Number(
+document.getElementById(
+"autoSellPlus"
+).value
+)||0;
+
+autoSellRequireAll=
+document.getElementById(
+"autoSellRequireAll"
+).checked;
+
+}
+
+
+/*
+1個の装備が
+自動売却条件に合うか
+*/
+
+function shouldAutoSell(item){
+
+if(!item)return false;
+
+
+/* 装備中は保護 */
+
+if(
+equipped[item.type]===item
+)return false;
+
+
+/* 指定レア度を超えるものは保護 */
+
+if(
+item.rarity>
+autoSellRarity
+){
+
+return false;
+
+}
+
+
+/* 条件 */
+
+let conditions=[
+
+item.atk<=autoSellATK,
+
+item.def<=autoSellDEF,
+
+item.mp<=autoSellMP,
+
+item.plus<=autoSellPlus
+
+];
+
+
+/*
+すべて満たす
+*/
+
+if(autoSellRequireAll){
+
+return conditions.every(Boolean);
+
+}
+
+
+/*
+どれか1つ満たす
+*/
+
+return conditions.some(Boolean);
+
+}
+
+
+/*
+自動売却本体
+*/
+
+function autoSell(){
+
+readAutoSellSettings();
+
+if(!autoSellEnabled)return;
+
+if(
+inventory.length<
+autoSellLimit
+)return;
+
+let sold=0;
+let money=0;
+
+for(
+let i=inventory.length-1;
+i>=0;
+i--
+){
+
+if(
+inventory.length<
+autoSellLimit
+)break;
+
+let item=
+inventory[i];
+
+if(
+!shouldAutoSell(item)
+)continue;
+
+let value=
+20+
+item.rarity*30+
+item.plus*10;
+
+gold+=value;
+
+money+=value;
+
+inventory.splice(i,1);
+
+sold++;
+
+}
+
+if(sold>0){
+
+log(
+"🤖自動売却 "+
+sold+
+"個 / +"+
+money+
+"G"
+);
+
+drawInventory();
+
+update();
+
+}
+
+}
+
+
+/*
+手動実行
+*/
+
+function autoSellNow(){
+
+readAutoSellSettings();
+
+/*
+手動実行では
+インベントリ上限に関係なく
+条件に合う装備を全部売る
+*/
+
+let sold=0;
+let money=0;
+
+for(
+let i=inventory.length-1;
+i>=0;
+i--
+){
+
+let item=
+inventory[i];
+
+if(
+!shouldAutoSell(item)
+)continue;
+
+let value=
+20+
+item.rarity*30+
+item.plus*10;
+
+gold+=value;
+
+money+=value;
+
+inventory.splice(i,1);
+
+sold++;
+
+}
+
+if(sold===0){
+
+log(
+"🤖売却対象なし"
+);
+
+}else{
+
+log(
+"🤖自動売却 "+
+sold+
+"個 / +"+
+money+
+"G"
+);
+
+}
 
 drawInventory();
 
@@ -1518,14 +2015,13 @@ update();
 
 function combine(){
 
-/*
-同じ種類・同じレアリティ・同じ+レベル
-3個必要
-*/
-
 let found=null;
 
-for(let i=0;i<inventory.length;i++){
+for(
+let i=0;
+i<inventory.length;
+i++
+){
 
 let a=inventory[i];
 
@@ -1562,33 +2058,35 @@ return;
 
 }
 
-let items=found.items;
-
-if(found.item.rarity>=4){
-
-log("最高レアです");
-
-return;
-
-}
-
-
-/* 装備中が含まれている場合は不可 */
+let items=
+found.items;
 
 if(
 items.some(
-x=>equipped[x.type]===x
+x=>
+equipped[x.type]===x
 )
 ){
 
-log("⚠装備中の物は合成できません");
+log(
+"⚠装備中は合成不可"
+);
 
 return;
 
 }
 
+if(
+found.item.rarity>=4
+){
 
-/* 3個削除 */
+log(
+"最高レアです"
+);
+
+return;
+
+}
 
 items.forEach(item=>{
 
@@ -1597,14 +2095,14 @@ inventory.indexOf(item);
 
 if(index>=0){
 
-inventory.splice(index,1);
+inventory.splice(
+index,
+1
+);
 
 }
 
 });
-
-
-/* 新装備 */
 
 let newItem=
 JSON.parse(
@@ -1636,11 +2134,15 @@ newItem.mp*1.5
 
 newItem.crit*=1.2;
 
-inventory.push(newItem);
+inventory.push(
+newItem
+);
 
 log(
 "🔨合成成功！ "+
-rarities[newItem.rarity].label
+rarities[
+newItem.rarity
+].label
 );
 
 drawInventory();
@@ -1704,13 +2206,19 @@ isBackTower
 ?0.35
 :0.25;
 
-if(Math.random()<chance){
+if(
+Math.random()<chance
+){
 
 inventory.push(
 createItem(false)
 );
 
-log("🎁装備ドロップ！");
+log(
+"🎁装備ドロップ！"
+);
+
+autoSell();
 
 drawInventory();
 
@@ -1741,7 +2249,9 @@ playerHP+50,
 playerMax
 );
 
-log("🧪HP回復");
+log(
+"🧪HP回復"
+);
 
 update();
 
@@ -1767,8 +2277,12 @@ inventory.push(item);
 
 log(
 "🎰ガチャ "+
-rarities[item.rarity].label
+rarities[
+item.rarity
+].label
 );
+
+autoSell();
 
 drawInventory();
 
@@ -1778,7 +2292,7 @@ update();
 
 
 /* =========================
-次の階
+階層
 ========================= */
 
 function nextFloor(){
@@ -1802,7 +2316,9 @@ function levelUp(){
 
 let leveled=false;
 
-while(exp>=expMax){
+while(
+exp>=expMax
+){
 
 exp-=expMax;
 
@@ -1813,9 +2329,6 @@ Math.floor(
 expMax*1.4
 );
 
-
-/* 基本成長 */
-
 playerMax+=20;
 
 attack+=2;
@@ -1824,21 +2337,26 @@ defense+=1;
 
 playerMaxMP+=10;
 
-playerHP=playerMax;
+playerHP=
+playerMax;
 
-playerMP=playerMaxMP;
+playerMP=
+playerMaxMP;
 
 leveled=true;
 
 log(
-"🎉Lv"+level+
+"🎉Lv"+
+level+
 "になった！"
 );
 
 
-/* 5レベルごと */
+/* 5レベル */
 
-if(level%5===0){
+if(
+level%5===0
+){
 
 let bonus=
 createItem(false);
@@ -1864,17 +2382,22 @@ Math.floor(
 bonus.mp*1.5
 );
 
-inventory.push(bonus);
+inventory.push(
+bonus
+);
 
 attack+=5;
 
 playerMax+=30;
 
-playerHP=playerMax;
+playerHP=
+playerMax;
 
 log(
 "🌟5Lvボーナス装備！"
 );
+
+autoSell();
 
 }
 
@@ -1944,7 +2467,9 @@ function enterBackTower(){
 
 if(!backTowerUnlocked){
 
-log("まだ解放されていません");
+log(
+"まだ解放されていません"
+);
 
 return;
 
@@ -1956,7 +2481,9 @@ floor=1;
 
 battleEnd=false;
 
-log("🌌裏の塔へ進んだ！");
+log(
+"🌌裏の塔へ進んだ！"
+);
 
 spawnEnemy();
 
@@ -1986,6 +2513,8 @@ update();
 
 function save(){
 
+readAutoSellSettings();
+
 let data={
 
 floor,
@@ -2011,7 +2540,16 @@ equipped,
 critRate,
 
 isBackTower,
-backTowerUnlocked
+backTowerUnlocked,
+
+autoSellEnabled,
+autoSellLimit,
+autoSellRarity,
+autoSellATK,
+autoSellDEF,
+autoSellMP,
+autoSellPlus,
+autoSellRequireAll
 
 };
 
@@ -2020,7 +2558,9 @@ localStorage.setItem(
 JSON.stringify(data)
 );
 
-log("💾セーブ完了");
+log(
+"💾セーブ完了"
+);
 
 }
 
@@ -2038,7 +2578,9 @@ localStorage.getItem(
 
 if(!data){
 
-log("セーブデータなし");
+log(
+"セーブデータなし"
+);
 
 return;
 
@@ -2058,11 +2600,17 @@ expMax=d.expMax||10;
 
 playerMax=d.playerMax||100;
 
-playerHP=d.playerHP||playerMax;
+playerHP=
+d.playerHP||
+playerMax;
 
-playerMaxMP=d.playerMaxMP||50;
+playerMaxMP=
+d.playerMaxMP||
+50;
 
-playerMP=d.playerMP||playerMaxMP;
+playerMP=
+d.playerMP||
+playerMaxMP;
 
 gold=d.gold||100;
 
@@ -2075,14 +2623,85 @@ backTowerUnlocked=
 d.backTowerUnlocked||false;
 
 
-/*
-装備能力を一度リセットして
-保存された装備から再計算
-*/
+/* 自動売却設定 */
 
-attack=5+((level-1)*2);
+autoSellEnabled=
+d.autoSellEnabled||false;
 
-defense=2+((level-1)*1);
+autoSellLimit=
+d.autoSellLimit||30;
+
+autoSellRarity=
+d.autoSellRarity||0;
+
+autoSellATK=
+d.autoSellATK??20;
+
+autoSellDEF=
+d.autoSellDEF??15;
+
+autoSellMP=
+d.autoSellMP??10;
+
+autoSellPlus=
+d.autoSellPlus??9;
+
+autoSellRequireAll=
+d.autoSellRequireAll!==false;
+
+
+/* UIに反映 */
+
+document.getElementById(
+"autoSellEnabled"
+).checked=
+autoSellEnabled;
+
+document.getElementById(
+"autoSellLimit"
+).value=
+autoSellLimit;
+
+document.getElementById(
+"autoSellRarity"
+).value=
+autoSellRarity;
+
+document.getElementById(
+"autoSellATK"
+).value=
+autoSellATK;
+
+document.getElementById(
+"autoSellDEF"
+).value=
+autoSellDEF;
+
+document.getElementById(
+"autoSellMP"
+).value=
+autoSellMP;
+
+document.getElementById(
+"autoSellPlus"
+).value=
+autoSellPlus;
+
+document.getElementById(
+"autoSellRequireAll"
+).checked=
+autoSellRequireAll;
+
+
+/* 基礎ステータス再構築 */
+
+attack=
+5+
+((level-1)*2);
+
+defense=
+2+
+((level-1)*1);
 
 critRate=0.05;
 
@@ -2093,56 +2712,60 @@ ring:null
 };
 
 
-/* 保存インベントリ */
-
-let savedInventory=
-inventory;
-
-
-/*
-旧セーブ互換
-*/
+/* アイテム復元 */
 
 inventory=
-savedInventory.map(item=>({
+inventory.map(
+item=>({
 
-id:item.id||
+id:
+item.id||
 Date.now()+Math.random(),
 
-type:item.type||"sword",
+type:
+item.type||
+"sword",
 
-rarity:item.rarity||0,
+rarity:
+item.rarity||0,
 
-atk:item.atk||0,
+atk:
+item.atk||0,
 
-def:item.def||0,
+def:
+item.def||0,
 
-mp:item.mp||0,
+mp:
+item.mp||0,
 
-crit:item.crit||0,
+crit:
+item.crit||0,
 
-plus:item.plus||0
+plus:
+item.plus||0
 
-}));
+})
+);
 
 
-/* 保存された装備をIDで復元 */
+/* 装備復元 */
 
 if(d.equipped){
 
-for(let type of [
-"sword",
-"armor",
-"ring"
-]){
+for(
+let type of
+["sword","armor","ring"]
+){
 
-let saved=d.equipped[type];
+let saved=
+d.equipped[type];
 
 if(!saved)continue;
 
 let item=
 inventory.find(
-x=>x.id===saved.id
+x=>
+x.id===saved.id
 );
 
 if(item){
@@ -2163,21 +2786,20 @@ critRate+=item.crit;
 
 }
 
-
-/* MP補正 */
-
 playerMP=
 Math.min(
 playerMP,
 playerMaxMP
 );
 
-
-if(backTowerUnlocked){
+if(
+backTowerUnlocked
+){
 
 document.getElementById(
 "backTowerPanel"
-).style.display="block";
+).style.display=
+"block";
 
 }
 
@@ -2187,13 +2809,17 @@ drawInventory();
 
 update();
 
-log("📂ロード完了");
+log(
+"📂ロード完了"
+);
 
 }catch(e){
 
 console.log(e);
 
-log("⚠ロード失敗");
+log(
+"⚠ロード失敗"
+);
 
 }
 
@@ -2229,7 +2855,6 @@ playerMaxMP
 )
 );
 
-
 document.getElementById(
 "floor"
 ).innerText=
@@ -2238,12 +2863,16 @@ floor;
 document.getElementById(
 "hp"
 ).innerText=
-playerHP+"/"+playerMax;
+playerHP+
+"/"+
+playerMax;
 
 document.getElementById(
 "mp"
 ).innerText=
-playerMP+"/"+playerMaxMP;
+playerMP+
+"/"+
+playerMaxMP;
 
 document.getElementById(
 "level"
@@ -2253,7 +2882,9 @@ level;
 document.getElementById(
 "exp"
 ).innerText=
-exp+"/"+expMax;
+exp+
+"/"+
+expMax;
 
 document.getElementById(
 "gold"
@@ -2263,33 +2894,41 @@ gold;
 document.getElementById(
 "enemyHP"
 ).innerText=
-enemyHP+"/"+enemyMax;
+enemyHP+
+"/"+
+enemyMax;
 
 
-/* HPバー */
+/* HP */
 
 let hpPercent=
 playerMax>0
-?playerHP/playerMax*100
-:0;
+?
+playerHP/playerMax*100
+:
+0;
 
 document.getElementById(
 "hpbar"
 ).style.width=
-hpPercent+"%";
+hpPercent+
+"%";
 
 
-/* 敵HP */
+/* 敵 */
 
 let enemyPercent=
 enemyMax>0
-?enemyHP/enemyMax*100
-:0;
+?
+enemyHP/enemyMax*100
+:
+0;
 
 document.getElementById(
 "enemybar"
 ).style.width=
-enemyPercent+"%";
+enemyPercent+
+"%";
 
 
 /* 塔名 */
@@ -2298,8 +2937,10 @@ document.getElementById(
 "towerName"
 ).innerHTML=
 isBackTower
-?"🌌 <span class='backTower'>裏の塔</span>"
-:"🏯 通常の塔";
+?
+"🌌 <span class='backTower'>裏の塔</span>"
+:
+"🏯 通常の塔";
 
 
 /* 状態異常 */
@@ -2331,10 +2972,9 @@ document.getElementById(
 ).innerText=
 es.join(" ");
 
-
-/* 裏の塔 */
-
-if(backTowerUnlocked){
+if(
+backTowerUnlocked
+){
 
 document.getElementById(
 "backTowerPanel"
@@ -2362,3 +3002,4 @@ update();
 
 </body>
 </html>
+```
